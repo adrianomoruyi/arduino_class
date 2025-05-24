@@ -1,9 +1,7 @@
-const int ledPin = 2;     // LED connected to digital pin 2
+const int ledPin = 2;  // LED connected to digital pin 2
 
-// 🔤 Set your hidden message here
-String message = "SECRET MESSAGE";  // Students must decode this
 
-// Morse code lookup
+// Morse code lookup function
 String morseCode(char c) {
   switch (toupper(c)) {
     case 'A': return ".-";
@@ -42,25 +40,31 @@ String morseCode(char c) {
     case '8': return "---..";
     case '9': return "----.";
     case '0': return "-----";
-    case ' ': return " ";  // Word space
-    default: return "";    // Ignore unsupported characters
+    case ' ': return " ";  // space = word gap
+    default: return "";    // ignore unsupported characters
   }
 }
 
+
+// Flash one dot
 void dot() {
   digitalWrite(ledPin, HIGH);
   delay(400);              // 1 unit
   digitalWrite(ledPin, LOW);
-  delay(400);              // Space between dots/dashes
+  delay(400);              // space between dots/dashes
 }
 
+
+// Flash one dash
 void dash() {
   digitalWrite(ledPin, HIGH);
-  delay(1200);             // 3 units
+  delay(1200);              // 3 units
   digitalWrite(ledPin, LOW);
-  delay(400);              // Space between dots/dashes
+  delay(400);              // space between dots/dashes
 }
 
+
+// Flash Morse code for a single letter
 void flashMorse(String code) {
   for (char c : code) {
     if (c == '.') {
@@ -69,26 +73,33 @@ void flashMorse(String code) {
       dash();
     }
   }
-  delay(1200);  // Space between letters (3 units)
+  delay(1200);              // space between letters (3 units)
 }
+
 
 void setup() {
   pinMode(ledPin, OUTPUT);
-
-  // Flash the hardcoded message once
-  for (char c : message) {
-    String morse = morseCode(c);
-    if (morse == " ") {
-      delay(2800);  // Space between words (7 units)
-    } else {
-      flashMorse(morse);
-    }
-  }
+  Serial.begin(9600);
+  Serial.println("Enter a message:");
 }
+
 
 void loop() {
-  // Nothing here – message only plays once when powered on
+  if (Serial.available()) {
+    String message = Serial.readStringUntil('\n');
+    message.trim();
+
+
+    for (char c : message) {
+      String morse = morseCode(c);
+      if (morse == " ") {
+        delay(2800);       // space between words (7 units)
+      } else {
+        flashMorse(morse);
+      }
+    }
+
+
+    Serial.println("Done. Enter another message:");
+  }
 }
-
-
-
